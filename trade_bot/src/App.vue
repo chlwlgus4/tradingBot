@@ -9,7 +9,7 @@
         <div :style="{width: '23vh', background: 'white', padding: '7px', borderRadius: '5px', float: item.who === 'me' ? 'right' : 'left'}">
           <span style="font-size: 10px">유저이름: {{ item.userName }}</span>
           <br/>
-          <span style="font-size: 13px; word-break: break-all">{{ item.content }}</span>
+          <span style="font-size: 11px; word-break: break-all">{{ item.content }}</span>
         </div>
         <br/>
       </div>
