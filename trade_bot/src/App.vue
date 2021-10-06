@@ -3,9 +3,16 @@
     유저이름:
     <input v-model="userName" type="text">내용: <input v-model="message" type="text" @keyup="onKeyPress">
     <button @click="sendMessage">입력</button>
-    <div v-for="(item, idx) in recvList" :key="idx">
-      <h3>유저이름: {{ item.userName }}</h3>
-      <h3>내용: {{ item.content }}</h3>
+    <div></div>
+    <div style="background: lightblue; padding: 10px; width: 60vh; margin-top: 15px; height: 70vh; overflow: scroll">
+      <div v-for="(item, idx) in recvList" :key="idx" style="height: 60px">
+        <div :style="{width: '23vh', background: 'white', padding: '7px', borderRadius: '5px', float: item.who === 'me' ? 'right' : 'left'}">
+          <span style="font-size: 10px">유저이름: {{ item.userName }}</span>
+          <br/>
+          <span style="font-size: 13px; word-break: break-all">{{ item.content }}</span>
+        </div>
+        <br/>
+      </div>
     </div>
   </div>
 </template>
@@ -20,7 +27,8 @@ export default {
     return {
       userName: "",
       message: "",
-      recvList: []
+      recvList: [],
+      who: 'me'
     }
   },
   created() {
@@ -64,10 +72,12 @@ export default {
             // 서버의 메시지 전송 endpoint를 구독합니다.
             // 이런형태를 pub sub 구조라고 합니다.
             this.stompClient.subscribe("/send", res => {
-              console.log('구독으로 받은 메시지 입니다.', res.body);
 
+              const recvMsg = JSON.parse(res.body);
+              console.log('구독으로 받은 메시지 입니다.', recvMsg);
               // 받은 데이터를 json으로 파싱하고 리스트에 넣어줍니다.
-              this.recvList.push(JSON.parse(res.body))
+              recvMsg.who = this.userName === recvMsg.userName ? 'me' : 'stranger';
+              this.recvList.push(recvMsg)
             });
           },
           error => {
