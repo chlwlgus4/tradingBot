@@ -4,7 +4,7 @@
     <input v-model="userName" type="text">내용: <input v-model="message" type="text" @keyup="onKeyPress">
     <button @click="sendMessage">입력</button>
     <div></div>
-    <div style="background: lightblue; padding: 10px; width: 60vh; margin-top: 15px; height: 70vh; overflow: scroll">
+    <div :style="{background: 'lightblue', padding: '10px', width: 'window.innerWidth', marginTop: '15px', height: '70vh', overflow: 'scroll'}">
       <div v-for="(item, idx) in recvList" :key="idx" style="height: 60px">
         <div :style="{width: '23vh', background: 'white', padding: '7px', borderRadius: '5px', float: item.who === 'me' ? 'right' : 'left'}">
           <span style="font-size: 10px">유저이름: {{ item.userName }}</span>
@@ -34,6 +34,7 @@ export default {
   created() {
     // App.vue가 생성되면 소켓 연결을 시도합니다.
     this.connect()
+    alert(window.innerWidth)
   },
   methods: {
     onKeyPress(e) {
