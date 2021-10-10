@@ -18,8 +18,8 @@
 </template>
 
 <script>
-import Stomp from 'webstomp-client'
-import SockJS from 'sockjs-client'
+import {conncet, send} from './socket'
+import { mapGetters } from "vuex";
 
 export default {
   name: 'App',
@@ -27,9 +27,13 @@ export default {
     return {
       userName: "",
       message: "",
-      recvList: [],
-      who: 'me',
       chatWidth: ''
+    }
+  },
+  computed: {
+    ...mapGetters(["getUserName"]),
+    recvList(){
+      return this.$store.state.recvList
     }
   },
   mounted() {
@@ -37,60 +41,23 @@ export default {
   },
   created() {
     // App.vue가 생성되면 소켓 연결을 시도합니다.
-    this.connect()
+    // this.connect()
+    conncet();
   },
   methods: {
     onKeyPress(e) {
       if(e.keyCode === 13 && this.userName !== '' && this.message !== ''){
-        this.send()
+        send();
         this.message = ''
       }
     },
     sendMessage () {
+      this.$store.dispatch('FETCH_USERINFO', this.userName);
       if(this.message) {
-        this.send()
+        send(this.userName, this.message);
         this.message = ''
       }
     },
-    send() {
-      console.log("Send message:" + this.message);
-      if (this.stompClient && this.stompClient.connected) {
-        const msg = {
-          userName: this.userName,
-          content: this.message
-        };
-        this.stompClient.send("/receive", JSON.stringify(msg), {});
-      }
-    },
-    connect() {
-      const serverURL = process.env.VUE_APP_URL
-      let socket = new SockJS(serverURL);
-      this.stompClient = Stomp.over(socket);
-      console.log(`소켓 연결을 시도합니다. 서버 주소: ${serverURL}`)
-      this.stompClient.connect(
-          {},
-          frame => {
-            // 소켓 연결 성공
-            this.connected = true;
-            console.log('소켓 연결 성공', frame);
-            // 서버의 메시지 전송 endpoint를 구독합니다.
-            // 이런형태를 pub sub 구조라고 합니다.
-            this.stompClient.subscribe("/send", res => {
-
-              const recvMsg = JSON.parse(res.body);
-              console.log('구독으로 받은 메시지 입니다.', recvMsg);
-              // 받은 데이터를 json으로 파싱하고 리스트에 넣어줍니다.
-              recvMsg.who = this.userName === recvMsg.userName ? 'me' : 'stranger';
-              this.recvList.push(recvMsg)
-            });
-          },
-          error => {
-            // 소켓 연결 실패
-            console.log('소켓 연결 실패', error);
-            this.connected = false;
-          }
-      );
-    }
   }
 }
 </script>

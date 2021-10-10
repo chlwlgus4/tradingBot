@@ -1,4 +1,5 @@
 module.exports = {
+    lintOnSave: false,
     devServer: {
         port: 3000,
         // 프록시 설정
