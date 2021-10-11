@@ -1,11 +1,13 @@
 import Stomp from 'webstomp-client'
 import SockJS from 'sockjs-client'
 import {store} from '../store/index'
+import coinList from '../../CoinList'
 
 // eslint-disable-next-line no-unused-vars
 let stompClient;
 // eslint-disable-next-line no-unused-vars
 let connected = false;
+let upbitStompClient;
 
 function conncet() {
     let recvMsg = '';
@@ -50,7 +52,39 @@ function send(userName, message) {
     }
 }
 
+function upbitConnect() {
+    const tickerUrl = process.env.VUE_APP_TICKER_URL
+    upbitStompClient = new WebSocket(tickerUrl);
+    upbitStompClient.binaryType = 'arraybuffer';
+    console.log(`소켓 연결을 시도합니다. 서버 주소: ${tickerUrl}`);
+
+    upbitStompClient.onopen = () => {
+        console.log('소켓 연결 성공');
+        upbitStompClient.onmessage = ({data}) => {
+            const enc = new TextDecoder("utf-8");
+            const arr = new Uint8Array(data);
+            const str_d = enc.decode(arr);
+            const d = JSON.parse(str_d);
+            const coinName = coinList.filter(data => data.market === d.code)[0].korean_name;
+            //console.log(coinName, d.trade_price, d.signed_change_rate);
+
+            store.dispatch('FETCH_DASHBOARD_LIST', {
+                name: coinName,
+                price: d.trade_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                rate: (d.signed_change_rate * 100).toFixed(2)
+            })
+        }
+    }
+}
+
+function upbitTickerSend(coinList) {
+    const sendData = JSON.stringify([{"ticket":"UPBIT_TICKER"},{"type":"ticker","codes":coinList}]);
+    upbitStompClient.send(sendData)
+}
+
 export {
     conncet,
-    send
+    send,
+    upbitConnect,
+    upbitTickerSend
 }

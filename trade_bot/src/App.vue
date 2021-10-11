@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <UpbitTicker />
+    <br />
+    <CoinDashBord />
+    <br />
     유저이름:
     <input v-model="userName" type="text">내용: <input v-model="message" type="text" @keyup="onKeyPress">
     <button @click="sendMessage">입력</button>
@@ -18,11 +22,17 @@
 </template>
 
 <script>
-import {conncet, send} from './socket'
+import {conncet, send, upbitConnect} from './socket'
 import { mapGetters } from "vuex";
+import UpbitTicker from "./components/UpbitTicker";
+import CoinDashBord from "./components/CoinDashBord";
 
 export default {
   name: 'App',
+  components: {
+    UpbitTicker,
+    CoinDashBord
+  },
   data() {
     return {
       userName: "",
@@ -41,8 +51,17 @@ export default {
   },
   created() {
     // App.vue가 생성되면 소켓 연결을 시도합니다.
-    // this.connect()
     conncet();
+    upbitConnect();
+
+    // const convert = require('xml-js')
+    // const serviceKey= 'yk8ihkwUJeuSUb6EGP%2FC30KGjKg7PFOpgg34KLt%2BLwjpYkXLQiq%2BpR%2FKgLCPFlnK8PCruyVgQ7VkmBiZiUuvWg%3D%3D'
+    // this.$http.get(`https://cors-anywhere.herokuapp.com/http://openapi.nature.go.kr/openapi/service/rest/PlantService/plntIlstrInfo?serviceKey=${serviceKey}&q1=32222`)
+    // .then((response) => {
+    //   const xml = response.data;
+    //   const json = convert.xml2json(xml, { compact: true })
+    //   console.log(JSON.parse(json));
+    // });
   },
   methods: {
     onKeyPress(e) {

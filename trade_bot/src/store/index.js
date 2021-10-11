@@ -8,6 +8,8 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
     state: {
         recvList: [],
+        coinList: [],
+        dashBoardList: [],
         userInfo: {
             userName: ''
         },
