@@ -1,16 +1,23 @@
 <template>
   <div id="app">
-    <UpbitTicker />
-    <br />
-    <CoinDashBord />
-    <br />
+    <Modal>
+      <template #content>
+        <UpbitTicker v-if="showModal" @close="showModal = false"/>
+      </template>
+    </Modal>
+    <button @click="showModal = true">코인목록 열기</button>
+    <br/>
+    <CoinDashBord/>
+    <br/>
     유저이름:
     <input v-model="userName" type="text">내용: <input v-model="message" type="text" @keyup="onKeyPress">
     <button @click="sendMessage">입력</button>
     <div></div>
-    <div :style="{background: 'lightblue', padding: '10px', width: 'chatWidth', marginTop: '15px', height: '70vh', overflow: 'scroll'}">
+    <div
+        :style="{background: 'lightblue', padding: '10px', width: 'chatWidth', marginTop: '15px', height: '70vh', overflow: 'scroll'}">
       <div v-for="(item, idx) in recvList" :key="idx" style="height: 60px">
-        <div :style="{width: '23vh', background: 'white', padding: '7px', borderRadius: '5px', float: item.who === 'me' ? 'right' : 'left'}">
+        <div
+            :style="{width: '23vh', background: 'white', padding: '7px', borderRadius: '5px', float: item.who === 'me' ? 'right' : 'left'}">
           <span style="font-size: 10px">유저이름: {{ item.userName }}</span>
           <br/>
           <span style="font-size: 11px; word-break: break-all">{{ item.content }}</span>
@@ -23,26 +30,29 @@
 
 <script>
 import {conncet, send, upbitConnect} from './socket'
-import { mapGetters } from "vuex";
+import {mapGetters} from "vuex";
 import UpbitTicker from "./components/UpbitTicker";
 import CoinDashBord from "./components/CoinDashBord";
+import Modal from './components/common/Modal';
 
 export default {
   name: 'App',
   components: {
     UpbitTicker,
-    CoinDashBord
+    CoinDashBord,
+    Modal
   },
   data() {
     return {
       userName: "",
       message: "",
-      chatWidth: ''
+      chatWidth: '',
+      showModal: false
     }
   },
   computed: {
     ...mapGetters(["getUserName"]),
-    recvList(){
+    recvList() {
       return this.$store.state.recvList
     }
   },
@@ -54,25 +64,17 @@ export default {
     conncet();
     upbitConnect();
 
-    // const convert = require('xml-js')
-    // const serviceKey= 'yk8ihkwUJeuSUb6EGP%2FC30KGjKg7PFOpgg34KLt%2BLwjpYkXLQiq%2BpR%2FKgLCPFlnK8PCruyVgQ7VkmBiZiUuvWg%3D%3D'
-    // this.$http.get(`https://cors-anywhere.herokuapp.com/http://openapi.nature.go.kr/openapi/service/rest/PlantService/plntIlstrInfo?serviceKey=${serviceKey}&q1=32222`)
-    // .then((response) => {
-    //   const xml = response.data;
-    //   const json = convert.xml2json(xml, { compact: true })
-    //   console.log(JSON.parse(json));
-    // });
   },
   methods: {
     onKeyPress(e) {
-      if(e.keyCode === 13 && this.userName !== '' && this.message !== ''){
+      if (e.keyCode === 13 && this.userName !== '' && this.message !== '') {
         send();
         this.message = ''
       }
     },
-    sendMessage () {
+    sendMessage() {
       this.$store.dispatch('FETCH_USERINFO', this.userName);
-      if(this.message) {
+      if (this.message) {
         send(this.userName, this.message);
         this.message = ''
       }

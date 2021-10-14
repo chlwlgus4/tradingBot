@@ -66,13 +66,14 @@ function upbitConnect() {
             const str_d = enc.decode(arr);
             const d = JSON.parse(str_d);
             const coinName = coinList.filter(data => data.market === d.code)[0].korean_name;
-            //console.log(coinName, d.trade_price, d.signed_change_rate);
 
             store.dispatch('FETCH_DASHBOARD_LIST', {
+                code: d.code,
                 name: coinName,
                 price: d.trade_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
                 rate: (d.signed_change_rate * 100).toFixed(2)
-            })
+            });
+
         }
     }
 }
@@ -82,9 +83,15 @@ function upbitTickerSend(coinList) {
     upbitStompClient.send(sendData)
 }
 
+function upbitTickerClose() {
+    upbitStompClient.close();
+    console.log('소켓 연결 종료');
+}
+
 export {
     conncet,
     send,
     upbitConnect,
-    upbitTickerSend
+    upbitTickerSend,
+    upbitTickerClose
 }

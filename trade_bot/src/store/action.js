@@ -7,10 +7,10 @@ export default {
         const recvList = state.recvList;
         commit('SET_RECVLIST', recvList);
     },
-    FETCH_COIN_LIST({commit}, list) {
-        commit('SET_COIN_LIST', list)
-    },
     FETCH_DASHBOARD_LIST({commit}, data) {
         commit('SET_DASHBOARD_LIST', data);
+    },
+    DELETE_DASHBOARD_LIST({commit}, data) {
+        commit('DEL_DASHBOARD_LIST', data);
     }
 }
